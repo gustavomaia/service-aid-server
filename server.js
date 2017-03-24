@@ -1,17 +1,18 @@
-const http     = require('http');
-const hostname = '127.0.0.1';
-const port     = 8080;
+var express = require('express')
+var app = express()
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
-});
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
 
-server.listen(port, hostname, () => {
+app.get('/maria', function (req, res) {
+  res.send('Hello World Maria!')
+})
+
+app.listen(8080, function () {
   var db = require('./configuration/database');
 
   db.sequelize.sync();
 
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+  console.log('Example app listening on port 8080!')
+})
