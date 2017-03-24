@@ -9,8 +9,35 @@ var sequelize = new Sequelize('service-aid', 'gustavomaia', '', {
     min: 0,
     idle: 10000
   },
+  force: true,
 });
 
-exports.sequelize = sequelize;
+var models = [
+  'Category',
+  'Company',
+  'Contact',
+  'Executor',
+  'Manager',
+  'Issuer',
+  'Message',
+  'ServiceOrder',
+  'User'
+]
 
-sequelize.import("../model/service-order")
+models.forEach(function(model) {
+  module.exports[model] = sequelize.import('../model/' + model);
+});
+
+(function(m) {
+  m.Executor.belongsTo(m.User);
+  m.Manager.belongsTo(m.User);
+  m.Issuer.belongsTo(m.User);
+  m.Company.belongsTo(m.User);
+  m.Executor.hasMany(m.ServiceOrder);
+  m.Issuer.hasMany(m.ServiceOrder);
+  m.ServiceOrder.hasMany(m.Message);
+  m.Company.hasMany(m.Category);
+  m.Company.hasMany(m.Contact);
+}) (module.exports);
+
+exports.sequelize = sequelize;

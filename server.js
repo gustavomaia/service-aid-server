@@ -9,8 +9,9 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, hostname, () => {
-  var sequelize = require('./configuration/database').sequelize;
-  sequelize.sync();
+  var db = require('./configuration/database');
+
+  db.sequelize.sync();
 
   console.log(`Server running at http://${hostname}:${port}/`);
 });
