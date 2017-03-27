@@ -9,7 +9,7 @@ var sequelize = new Sequelize('service-aid', 'gustavomaia', '', {
     min: 0,
     idle: 10000
   },
-  force: true,
+  force: false,
 });
 
 var models = [
