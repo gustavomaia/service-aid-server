@@ -4,6 +4,8 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var db = require('./configuration/database');
 var bodyParser = require('body-parser')
+var session = require('express-session')
+var uuid = require('uuid/v4');
 
 passport.use(new LocalStrategy(
 
@@ -23,18 +25,42 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 passport.deserializeUser(function(id, done) {
-    db.User.findById(id, function(err, user) {
-        done(err, user);
+    db.User.findById(id).then(function (foundedUser) {
+        done(null, foundedUser);
     });
 });
 
-app.use(passport.initialize());
+app.use(session({
+  genid: function(req) {
+    return uuid()
+  },
+  secret: 'keyboard cat',
+  name: 'session',
+  resave: true,
+  saveUninitialized: false,
+  cookie: {
+     expires: 60000,
+     maxAge: 60000 * 12
+  }
+}))
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
+
+var auth = function(req, res, next){
+    if (!req.isAuthenticated() & req.url != '/login')
+        res.sendStatus(401);
+    else
+        next();
+};
+
+app.use(auth);
 
 app.post('/login',
   passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/login',
-                                   failureFlash: false })
+                                   failureRedirect: '/login'
+                                 })
 );
 
 app.get('/', function (req, res) {
