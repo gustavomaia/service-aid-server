@@ -1,28 +1,6 @@
-var express = require('express');
-var app = express();
-var db = require('../configuration/database');
+var app = require('../configuration/express');
 var passport = require('../configuration/passport');
-var bodyParser = require('body-parser')
-var session = require('express-session')
-var uuid = require('uuid/v4');
-
-app.use(session({
-  genid: function(req) {
-    return uuid()
-  },
-  secret: 'keyboard cat',
-  name: 'session',
-  resave: true,
-  saveUninitialized: false,
-  cookie: {
-     expires: 60000,
-     maxAge: 60000 * 12
-  }
-}))
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(passport.initialize());
-app.use(passport.session());
+var db = require('../configuration/database');
 
 var auth = function(req, res, next){
     if (!req.isAuthenticated() & req.url != '/login')
