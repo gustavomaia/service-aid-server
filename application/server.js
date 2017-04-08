@@ -1,34 +1,10 @@
 var express = require('express');
 var app = express();
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
 var db = require('../configuration/database');
+var passport = require('../configuration/passport');
 var bodyParser = require('body-parser')
 var session = require('express-session')
 var uuid = require('uuid/v4');
-
-passport.use(new LocalStrategy(
-
-  function(username, password, done) {
-    console.log('Usuario recebido: ' + username);
-    db.User.findOne({where: {email: username}}).then(function (foundedUser) {
-      if (!foundedUser) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-
-      return done(null, foundedUser);
-    });
-  }
-));
-
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-});
-passport.deserializeUser(function(id, done) {
-    db.User.findById(id).then(function (foundedUser) {
-        done(null, foundedUser);
-    });
-});
 
 app.use(session({
   genid: function(req) {
