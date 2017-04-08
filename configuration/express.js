@@ -19,9 +19,21 @@ app.use(session({
      maxAge: 60000 * 12
   }
 }))
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.all('/', function(req, res, next){
+    if (!req.isAuthenticated() & req.url != '/login')
+        res.sendStatus(401);
+    else
+        next();
+});
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/'})
+);
 
 module.exports = app;
