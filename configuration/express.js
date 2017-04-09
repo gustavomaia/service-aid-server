@@ -3,14 +3,20 @@ var session = require('express-session')
 var passport = require('./passport');
 var bodyParser = require('body-parser')
 var uuid = require('uuid/v4');
-
+var sequelize = require('./database').sequelize;
+var SequelizeStore = require('connect-session-sequelize')(session.Store);
 var app = express();
+
+var sessionStore = new SequelizeStore({
+   db: sequelize
+});
 
 app.use(session({
   genid: function(req) {
-    return uuid()
+    return uuid().replace(/-/g, '')
   },
-  secret: 'keyboard cat',
+  store: sessionStore,
+  secret: 'whota lotta love',
   name: 'session',
   resave: true,
   saveUninitialized: false,
@@ -19,6 +25,8 @@ app.use(session({
      maxAge: 60000 * 12
   }
 }))
+
+// sessionStore.sync();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
