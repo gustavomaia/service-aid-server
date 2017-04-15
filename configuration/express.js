@@ -5,6 +5,7 @@ var bodyParser = require('body-parser')
 var uuid = require('uuid/v4');
 var sequelize = require('./database').sequelize;
 var SequelizeStore = require('connect-session-sequelize')(session.Store);
+var consign = require('consign');
 var app = express();
 
 var sessionStore = new SequelizeStore({
@@ -33,12 +34,10 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.all('/', function(req, res, next){
-    if (!req.isAuthenticated() & req.url != '/login')
-        res.sendStatus(401);
-    else
-        next();
-});
+consign()
+  .include('controllers')
+  .include('routes')
+  .into(app);
 
 app.post('/login',
   passport.authenticate('local', { successRedirect: '/'})
