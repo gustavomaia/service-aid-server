@@ -34,13 +34,20 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 
-consign()
-  .include('controllers')
-  .include('routes')
-  .into(app);
+app.all('*', function(req, res, next) {
+  if (!req.isAuthenticated() & req.url != '/login')
+    res.sendStatus(401);
+  else
+      next();
+})
 
 app.post('/login',
   passport.authenticate('local', { successRedirect: '/'})
 );
+
+consign()
+  .include('controllers')
+  .include('routes')
+  .into(app);
 
 module.exports = app;
