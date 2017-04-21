@@ -34,8 +34,8 @@ models.forEach(function(model) {
   m.Issuer.belongsTo(m.User);
   m.Company.belongsTo(m.User);
   m.Executor.hasMany(m.ServiceOrder);
-  m.Issuer.hasMany(m.ServiceOrder);
   m.ServiceOrder.hasMany(m.Message);
+  m.ServiceOrder.belongsTo(m.Issuer);
   m.Company.hasMany(m.Category);
   m.Company.hasMany(m.Contact);
 }) (module.exports);
