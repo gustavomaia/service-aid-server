@@ -9,15 +9,11 @@ module.exports = function(app) {
 
       console.log(req.user.id);
       // console.log(x.description);
-      //
+      // preciso setar o user
       db.ServiceOrder
         .create({description: x.description, place: x.place, status: 'created'}).then(function (newOS) {
-          db.Issuer.findOne({where: {userId: req.user.id}}).then(function(foundIssuer) {
-            newOS.setIssuer(foundIssuer);
-            // newOS.save();
-          });
+            newOS.setIssuer(req.user);
         });
-      // ServiceOrder.
       res.sendStatus(201);
     }
   }

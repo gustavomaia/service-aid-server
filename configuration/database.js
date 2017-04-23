@@ -9,7 +9,7 @@ var sequelize = new Sequelize('service-aid', 'gustavomaia', '', {
     min: 0,
     idle: 10000
   },
-  force: false,
+  force: true,
 });
 
 var models = [
@@ -33,9 +33,9 @@ models.forEach(function(model) {
   m.Manager.belongsTo(m.User);
   m.Issuer.belongsTo(m.User);
   m.Company.belongsTo(m.User);
-  m.Executor.hasMany(m.ServiceOrder);
   m.ServiceOrder.hasMany(m.Message);
-  m.ServiceOrder.belongsTo(m.Issuer);
+  m.ServiceOrder.belongsTo(m.User, {as: 'Issuer', foreignKey: 'userIssuerId'});
+  m.ServiceOrder.belongsTo(m.User, {as: 'Executor', foreignKey: 'userExecutorId'});
   m.Company.hasMany(m.Category);
   m.Company.hasMany(m.Contact);
 }) (module.exports);
