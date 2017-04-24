@@ -34,6 +34,12 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); //trocar para o dominio do sistema
+  next();
+});
+
 app.all('*', function(req, res, next) {
   if (!req.isAuthenticated() & req.url != '/login')
     res.sendStatus(401);
@@ -42,7 +48,10 @@ app.all('*', function(req, res, next) {
 })
 
 app.post('/login',
-  passport.authenticate('local', { successRedirect: '/'})
+  passport.authenticate('local'),
+  function(req, res) {
+    res.sendStatus(200);
+  }
 );
 
 consign()
