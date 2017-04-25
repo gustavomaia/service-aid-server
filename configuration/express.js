@@ -9,7 +9,9 @@ var consign = require('consign');
 var app = express();
 
 var sessionStore = new SequelizeStore({
-   db: sequelize
+   db: sequelize,
+   checkExpirationInterval: 15 * 60 * 1000,
+   expiration: 24 * 60 * 60 * 1000
 });
 
 app.use(session({
@@ -19,15 +21,9 @@ app.use(session({
   store: sessionStore,
   secret: 'whota lotta love',
   name: 'session',
-  resave: true,
-  saveUninitialized: false,
-  cookie: {
-     expires: 60000,
-     maxAge: 60000 * 12
-  }
+  resave: false,
+  saveUninitialized: false
 }))
-
-// sessionStore.sync();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -36,14 +32,15 @@ app.use(passport.session());
 
 app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*'); //trocar para o dominio do sistema
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
   next();
 });
 
-app.all('*', function(req, res, next) {
-  if (!req.isAuthenticated() & req.url != '/login')
-    res.sendStatus(401);
-  else
+app.all('*',
+  function(req, res, next) {
+    if (!req.isAuthenticated() & req.url != '/login')
+      res.redirect(401, 'http://localhost:8080/login.html');
+    else
       next();
 })
 
@@ -51,6 +48,16 @@ app.post('/login',
   passport.authenticate('local'),
   function(req, res) {
     res.sendStatus(200);
+  }
+);
+
+app.get('/session-check',
+  function(req, res) {
+    if (req.isAuthenticated()) {
+      res.sendStatus(200)
+      }
+    else
+      res.sendStatus(401)
   }
 );
 
