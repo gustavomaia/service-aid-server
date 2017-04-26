@@ -2,7 +2,7 @@ var db = require('../configuration/database');
 
 module.exports = function(app) {
   var serviceOrderController = {
-    create: function(req, res, next) {
+    create: function(req, res) {
       let loggedUser = req.user;
       db.User.findById(loggedUser.id).then(function(foundUser) {
         if (foundUser) {

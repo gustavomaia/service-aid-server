@@ -39,7 +39,7 @@ app.use(function(req, res, next) {
 app.all('*',
   function(req, res, next) {
     if (!req.isAuthenticated() & req.url != '/login')
-      res.redirect(401, 'http://localhost:8080/login.html');
+      res.status(401).send('You must be logged to acess the API');
     else
       next();
 })
