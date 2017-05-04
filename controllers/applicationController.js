@@ -1,7 +1,7 @@
 var db = require('../configuration/database');
 
 module.exports = function(app) {
-  var serviceOrderController = {
+  let ApplicationController = {
     create: function(req, res) {
       let loggedUser = req.user;
       db.User.findById(loggedUser.id).then(function(foundUser) {
@@ -19,5 +19,5 @@ module.exports = function(app) {
     }
   }
 
-  return serviceOrderController;
+  return ApplicationController;
 }

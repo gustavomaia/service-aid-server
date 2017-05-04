@@ -1,7 +1,7 @@
 var db = require('../configuration/database');
 
 module.exports = function(app) {
-  let serviceOrderController = {
+  let ServiceOrderController = {
     create: function(req, res) {
       let serviceOrderRequest = req.body;
 
@@ -39,5 +39,5 @@ module.exports = function(app) {
     }
   }
 
-  return serviceOrderController;
+  return ServiceOrderController;
 }

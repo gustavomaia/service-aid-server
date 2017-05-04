@@ -1,5 +1,5 @@
 module.exports = function(app){
-  var applicationController = app.controllers.applicationController;
+  let applicationController = app.controllers.ApplicationController;
 
   app.get('/application', applicationController.create);
 }
