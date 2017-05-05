@@ -9,11 +9,17 @@ module.exports = function(sequelize, DataTypes) {
     place: {
       type: Sequelize.STRING
     },
+    contactPhoneNumber: {
+      type: Sequelize.STRING
+    },
     status: {
       type: Sequelize.STRING
     },
     limit_date: {
       type: Sequelize.DATEONLY
+    },
+    code: {
+      type: Sequelize.STRING
     }
   }, {
     freezeTableName: true,
