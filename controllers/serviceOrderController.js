@@ -12,6 +12,7 @@ module.exports = function(app) {
           contactPhoneNumber: serviceOrderRequest.contactPhoneNumber,
           categoryId: serviceOrderRequest.categoryId,
           userIssuerId: req.user.id,
+          companyId: req.user.companyId,
           status: 'waiting_management',
           code: (Date.now().toString(36) + Math.random().toString(36)).substr(10, 5).toUpperCase(),
           messages: [{
@@ -31,30 +32,87 @@ module.exports = function(app) {
             res.status(201).json(response);
         });
     },
-  issuer: function(req, res) {
-      let loggedUser = req.user;
-      db.ServiceOrder.findAll({
-        where: {
-          userIssuerId: loggedUser.id,
-          status: 'managed'
-        }
-      }).then(function (foundManagedServiceOrders) {
+    inProgress: {
+      toResponsible: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  userResponsibleId: req.user.id,
+                  status: 'in_progress'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'limitDate', 'userResponsibleId', 'categoryId', 'companyId', 'userIssuerId']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).send(ordersWaitingManagement);
+          })
+      },
+      toIssuer: function(req, res) {
+
+      }
+    },
+    waitingManagement: {
+      toManager: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  companyId: req.user.companyId,
+                  status: 'waiting_management'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'limitDate', 'userResponsibleId', 'categoryId', 'companyId', 'userIssuerId']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).send(ordersWaitingManagement);
+          })
+      },
+      toIssuer: function(req, res) {
+        let loggedUser = req.user;
         db.ServiceOrder.findAll({
           where: {
             userIssuerId: loggedUser.id,
-            status: 'waiting_management'
+            status: 'managed'
           }
-        })
-        .then(function (foundWaitingManagementServiceOrders) {
-          let response = {
-            managed: foundManagedServiceOrders,
-            waitingManagement: foundWaitingManagementServiceOrders
-          }
+        }).then(function (foundManagedServiceOrders) {
+          db.ServiceOrder.findAll({
+            where: {
+              userIssuerId: loggedUser.id,
+              status: 'waiting_management'
+            }
+          }).then(function (foundWaitingManagementServiceOrders) {
+            let response = {
+              managed: foundManagedServiceOrders,
+              waitingManagement: foundWaitingManagementServiceOrders
+            }
 
-          res.status(200).json(response)
-          }
-        )
-      });
+            res.status(200).json(response)
+          })
+        });
+      }
     }
   }
 

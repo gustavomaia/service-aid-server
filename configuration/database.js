@@ -28,10 +28,11 @@ models.forEach(function(model) {
 (function(m) {
   m.User.belongsTo(m.Company);
   m.ServiceOrder.hasMany(m.Message);
-  m.User.hasMany(m.ServiceOrder, {as: 'Issuer', foreignKey: 'userIssuerId'});
-  m.User.hasMany(m.ServiceOrder, {as: 'Responsible', foreignKey: 'userResponsibleId'});
+  m.ServiceOrder.belongsTo(m.User, {as: 'Issuer', foreignKey: 'userIssuerId'});
+  m.ServiceOrder.belongsTo(m.User, {as: 'Responsible', foreignKey: 'userResponsibleId'});
   m.User.hasMany(m.Contact)
   m.ServiceOrder.belongsTo(m.Category);
+  m.ServiceOrder.belongsTo(m.Company);
   m.Company.hasMany(m.Category);
 }) (module.exports);
 

@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
     status: {
       type: Sequelize.STRING
     },
-    limit_date: {
+    limitDate: {
       type: Sequelize.DATEONLY
     },
     code: {
