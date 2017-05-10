@@ -33,14 +33,14 @@ module.exports = function(app) {
         });
     },
     inProgress: {
-      toResponsible: function(req, res) {
+      toExecutor: function(req, res) {
         db.ServiceOrder.findAll({
                 where: {
-                  userResponsibleId: req.user.id,
+                  userExecutorId: req.user.id,
                   status: 'in_progress'
                 },
                 attributes: {
-                  exclude: ['createdAt', 'updatedAt', 'id', 'limitDate', 'userResponsibleId', 'categoryId', 'companyId', 'userIssuerId']
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId']
                 },
                 include: [{
                   model: db.Category,
@@ -71,7 +71,7 @@ module.exports = function(app) {
                   status: 'waiting_management'
                 },
                 attributes: {
-                  exclude: ['createdAt', 'updatedAt', 'id', 'limitDate', 'userResponsibleId', 'categoryId', 'companyId', 'userIssuerId']
+                  exclude: ['createdAt', 'updatedAt', 'id', 'limitDate', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId']
                 },
                 include: [{
                   model: db.Category,
