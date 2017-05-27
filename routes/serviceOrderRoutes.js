@@ -6,4 +6,6 @@ module.exports = function(app){
   app.get('/service-order/executor/inProgress', serviceOrderController.inProgress.toExecutor);
   app.get('/service-order/issuer/waitingManagement', serviceOrderController.waitingManagement.toIssuer);
   app.get('/service-order/manager/waitingManagement', serviceOrderController.waitingManagement.toManager);
+  app.get('/service-order/:serviceOrderCode', serviceOrderController.getServiceOrder);
+  app.post('/service-order/:serviceOrderCode/message', serviceOrderController.newMessage);
 }

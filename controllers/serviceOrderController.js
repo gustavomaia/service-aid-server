@@ -2,6 +2,61 @@ var db = require('../configuration/database');
 
 module.exports = function(app) {
   let ServiceOrderController = {
+    newMessage: function(req, res) {
+      db.ServiceOrder.findOne({
+        where: {
+          code: req.params.serviceOrderCode
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId', 
+          'description', 'place', 'contactPhoneNumber', 'status', 'limitDate', 'code']
+        },
+      }).then(serviceOrder=>{
+        db.Message.create({
+          message: req.body.message,
+          author: req.user.name,
+          serviceOrderId: serviceOrder.id
+        }).then(newMessage=>{
+          res.status(201).json(newMessage)
+        })
+      })
+    },
+    getServiceOrder: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  code: req.params.serviceOrderCode
+                },
+                attributes: {
+                  exclude: ['id', 'createdAt', 'updatedAt', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId']
+                },
+                include: [{
+                  model: db.Company,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'id']
+                  }
+                }, {
+                  model: db.Message,
+                  attributes: {
+                    exclude:['updatedAt', 'id', 'serviceOrderId']
+                  }
+                },{
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Executor',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(serviceOrder => {
+            res.status(200).send(serviceOrder);
+          })
+    },
     create: function(req, res) {
       let serviceOrderRequest = req.body;
 
