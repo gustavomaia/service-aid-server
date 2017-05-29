@@ -115,8 +115,31 @@ module.exports = function(app) {
           })
       },
       toIssuer: function(req, res) {
-
-      }
+        db.ServiceOrder.findAll({
+                where: {
+                  userIssuerId: req.user.id,
+                  status: 'in_progress'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId', 'contactPhoneNumber']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Executor',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).json({inProgress: ordersWaitingManagement});
+          })
+      },
     },
     waitingManagement: {
       toManager: function(req, res) {
