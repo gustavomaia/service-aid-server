@@ -9,4 +9,5 @@ module.exports = function(app){
   app.get('/service-order/manager/waitingManagement', serviceOrderController.waitingManagement.toManager);
   app.get('/service-order/:serviceOrderCode', serviceOrderController.getServiceOrder);
   app.post('/service-order/:serviceOrderCode/message', serviceOrderController.newMessage);
+  app.post('/service-order/:serviceOrderCode/finish', serviceOrderController.finish);
 }

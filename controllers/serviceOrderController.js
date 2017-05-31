@@ -2,6 +2,28 @@ var db = require('../configuration/database');
 
 module.exports = function(app) {
   let ServiceOrderController = {
+    finish: function(req, res){
+      db.ServiceOrder.findOne({
+        where: {
+          code: req.params.serviceOrderCode,
+          status: 'in_progress'
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId',
+          'description', 'place', 'contactPhoneNumber', 'status', 'limitDate', 'code']
+        },
+      }).then(serviceOrder=>{
+        serviceOrder.update({status: 'finished'}).then(() => {
+          db.Message.create({
+            message: 'Ordem de serviço finalizada',
+            author: req.user.name,
+            serviceOrderId: serviceOrder.id
+          }).then(newMessage=>{
+            res.status(201).send();
+          })
+        })
+      })
+    },
     newMessage: function(req, res) {
       db.ServiceOrder.findOne({
         where: {
