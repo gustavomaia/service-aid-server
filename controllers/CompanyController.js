@@ -19,6 +19,21 @@ module.exports = function(app) {
         .then(company => {
           res.status(200).json(company);
         });
+    },
+    getExecutors: function(req, res) {
+      let loggedUser = req.user;
+      db.User.findAll({
+        where: {
+          companyId: loggedUser.companyId,
+          type: ['executor', 'manager']
+        },
+        attributes: {
+          exclude: ['email', 'password', 'type', 'createdAt', 'updatedAt', 'companyId']
+        }
+      })
+      .then(serviceOrder => {
+        res.status(200).send(serviceOrder);
+      })
     }
   }
 

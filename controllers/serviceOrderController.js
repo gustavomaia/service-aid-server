@@ -43,6 +43,27 @@ module.exports = function(app) {
         })
       })
     },
+    manage: function(req, res) {
+      db.ServiceOrder.findOne({
+        where: {
+          code: req.params.serviceOrderCode
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'categoryId', 'companyId', 'userIssuerId', 
+          'description', 'place', 'contactPhoneNumber', 'status', 'code']
+        },
+      }).then(serviceOrder=>{
+        serviceOrder.update({status: 'in_progress', limitDate: req.body.limitDate, userExecutorId: req.body.executorId}).then(() => {
+          db.Message.create({
+            message: 'Acabei de definir um responsável pela sua ordem de serviço e em breve ele resolverá seu problema.',
+            author: req.user.name,
+            serviceOrderId: serviceOrder.id
+          }).then(newMessage=>{
+            res.status(201).send();
+          })
+        })
+      })
+    },
     getServiceOrder: function(req, res) {
         db.ServiceOrder.findAll({
                 where: {
@@ -94,7 +115,7 @@ module.exports = function(app) {
           code: (Date.now().toString(36) + Math.random().toString(36)).substr(10, 5).toUpperCase(),
           messages: [{
             message: 'Ordem de serviço criada com sucesso. Aguarde a definição de um responsável!',
-            author: 'system'
+            author: 'Sistema'
           }]
         }, {
           include: [db.Message]
@@ -136,6 +157,38 @@ module.exports = function(app) {
             res.status(200).send(ordersWaitingManagement);
           })
       },
+      toManager: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  companyId: req.user.companyId,
+                  status: 'in_progress'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Executor',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).send(ordersWaitingManagement);
+          })
+      },
       toIssuer: function(req, res) {
         db.ServiceOrder.findAll({
                 where: {
@@ -160,6 +213,92 @@ module.exports = function(app) {
               })
           .then(ordersWaitingManagement => {
             res.status(200).json({inProgress: ordersWaitingManagement});
+          })
+      },
+    },
+    finished: {
+      toManager: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  companyId: req.user.companyId,
+                  status: 'finished'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId', 'contactPhoneNumber', 'limitDate']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Executor',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).json(ordersWaitingManagement);
+          })
+      },
+      toIssuer: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  userIssuerId: req.user.id,
+                  status: 'finished'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId', 'contactPhoneNumber', 'limitDate']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Executor',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).json(ordersWaitingManagement);
+          })
+      },
+      toExecutor: function(req, res) {
+        db.ServiceOrder.findAll({
+                where: {
+                  userExecutorId: req.user.id,
+                  status: 'finished'
+                },
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt', 'id', 'userExecutorId', 'categoryId', 'companyId', 'userIssuerId', 'contactPhoneNumber', 'limitDate']
+                },
+                include: [{
+                  model: db.Category,
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'id']
+                  }
+                }, {
+                  model: db.User,
+                  as: 'Issuer',
+                  attributes: {
+                    exclude:['createdAt', 'updatedAt', 'companyId', 'type', 'id', 'password']
+                  }
+                }]
+              })
+          .then(ordersWaitingManagement => {
+            res.status(200).json(ordersWaitingManagement);
           })
       },
     },
